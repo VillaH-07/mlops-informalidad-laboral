@@ -1,0 +1,59 @@
+# Integración continua: en cada push o pull request se revisa calidad, pruebas y Docker.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  calidad-y-pruebas:
+    name: Linter + tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar uv y Python 3.11
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+          enable-cache: true
+
+      - name: Instalar dependencias (exactas, desde uv.lock)
+        run: uv sync --frozen
+
+      - name: Linter (ruff)
+        run: uv run ruff check .
+
+      - name: Formato (ruff format)
+        run: uv run ruff format --check .
+
+      - name: Pruebas unitarias e integración
+        run: uv run pytest --cov=informalidad --cov-report=term-missing
+
+  docker:
+    name: Build + smoke test de la imagen
+    needs: calidad-y-pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Construir imagen
+        run: docker build -t informalidad-api:ci .
+
+      - name: Levantar contenedor y probar endpoints
+        run: |
+          docker run -d --name api -p 8000:8000 informalidad-api:ci
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && break
+            sleep 2
+          done
+          curl -sf http://localhost:8000/health
+          curl -sf -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"EDAD":34,"HORAS_SEMANA":48,"INGRESO_LABORAL":1300000,"SEXO":1,"NIVEL_EDUCATIVO":5,"ESTADO_CIVIL":2,"AFILIADO_SALUD":1,"POSICION_OCUPACIONAL":4,"TIENE_CONTRATO":2,"RAMA_ACTIVIDAD":47}'
+
+      - name: Logs del contenedor (si algo falla)
+        if: failure()
+        run: docker logs api
