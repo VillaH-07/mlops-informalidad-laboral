@@ -186,28 +186,6 @@ mlops-informalidad-laboral/
 
 ⭐ = ítems marcados como *nice to have* en la guía.
 
-## 8. Timeline
-
-| # | Fase | Actividades | Duración | Fechas | Responsable |
-|---|---|---|---|---|---|
-| 1 | Planificación y setup | Problema, métricas, estructura del repo, entorno uv | 1 día | 8 oct | Juan José Villa |
-| 2 | Datos | Construir dataset desde la GEIH cruda, EDA, contrato de datos, muestra | 2 días | 9–10 oct | Juan José Villa |
-| 3 | Experiment tracking | Baselines, comparación con CV, Optuna, MLflow Registry | 2 días | 11–12 oct | Juan José Villa |
-| 4 | Orquestación | Flows de Prefect, schedule, promoción champion | 2 días | 13–14 oct | Juan José Villa |
-| 5 | Deployment | FastAPI, Docker multi-stage, docker-compose | 2 días | 15–16 oct | Juan José Villa |
-| 6 | Monitoreo | Log de predicciones, PSI, reporte, reentreno | 1 día | 17 oct | Juan José Villa |
-| 7 | Calidad | Tests, ruff, pre-commit, GitHub Actions | 1 día | 18 oct | Juan José Villa |
-| 8 | Documentación y entrega | README, docs, revisión final, evaluación por pares | 2 días | 19–20 oct | Juan José Villa |
-
-## 9. Limitaciones y próximos pasos
-
-- **Variables muy cercanas al target**: contrato y afiliación a salud están muy asociadas a cotizar a
-  pensión. Son válidas para predecir, pero el modelo no debe leerse como causal.
-- **Drift nominal del ingreso**: el monitoreo ya lo detecta (PSI 0.55 en feb-2026) sin pérdida de
-  desempeño. Mejora propuesta: expresar el ingreso en salarios mínimos de cada año.
-- **Nube**: la imagen está lista para EC2 / Cloud Run; el despliegue en la nube queda como siguiente paso.
-- **Dashboard en tiempo real** (Prometheus + Grafana) propuesto en `docs/monitoreo.md`.
-
 ## Autor
 
-**Juan José Villa** — Especialización en Analítica e Inteligencia Artificial, Universidad de Medellín.
+**Juan José Villa** — Especialización en Ciencia de datos e Inteligencia Artificial, Universidad de Medellín.
