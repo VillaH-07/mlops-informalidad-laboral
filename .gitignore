@@ -1,0 +1,36 @@
+# Entornos y caches de Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+.ipynb_checkpoints/
+
+# Datos: el dataset completo NO se sube (pesado). La muestra data/sample/ sí.
+data/raw/*
+!data/raw/.gitkeep
+
+# Tracking de MLflow (se regenera corriendo el pipeline)
+mlflow.db
+mlruns/
+mlartifacts/
+
+# Salidas generadas
+logs/*
+!logs/.gitkeep
+reports/*
+!reports/.gitkeep
+prefect_run_id.txt
+
+# El modelo champion exportado (models/champion) SÍ se versiona: lo necesita Docker.
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.env

@@ -1,0 +1,63 @@
+# =============================================================================
+# Configuración central del proyecto (única fuente de verdad)
+# Cualquier valor se puede sobreescribir con variables de entorno (ver config.py)
+# =============================================================================
+
+project:
+  name: informalidad-laboral
+  random_state: 42
+
+data:
+  # Dataset completo (no se sube a git): lo genera scripts/build_dataset.py a partir de los
+  # microdatos crudos de la GEIH (módulos Características generales + Ocupados)
+  raw_path: data/raw/geih_informalidad_10meses.csv
+  # Muestra pequeña (sí se sube a git): permite correr todo sin el dataset completo
+  sample_path: data/sample/geih_informalidad_sample.csv
+  period_column: MES_PERIODO
+  target: INFORMAL
+  # Validación fuera de tiempo: el modelo se evalúa con los meses más recientes,
+  # que nunca vio durante el entrenamiento (simula lo que pasa en producción)
+  test_periods: ["Enero 2026", "Febrero 2026"]
+  validation_size: 0.2
+  min_rows: 500
+
+features:
+  numeric: [EDAD, HORAS_SEMANA, INGRESO_LABORAL]
+  categorical:
+    - SEXO
+    - NIVEL_EDUCATIVO
+    - ESTADO_CIVIL
+    - AFILIADO_SALUD
+    - POSICION_OCUPACIONAL
+    - TIENE_CONTRATO
+    - RAMA_ACTIVIDAD
+  # Columnas excluidas y por qué:
+  #   COTIZA_PENSION    -> define la variable objetivo (data leakage)
+  #   INGRESO_MONETARIO -> redundante con INGRESO_LABORAL (corr 0.67)
+  #   DEPARTAMENTO      -> se usa solo para monitoreo (segmentación), no para predecir
+  #   MES_PERIODO       -> solo para el split temporal
+
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: informalidad-laboral
+  registered_model_name: informalidad-laboral-clf
+  champion_alias: champion
+  candidate_alias: candidate
+  # Métrica con la que se decide si un candidato reemplaza al champion
+  promotion_metric: test_roc_auc
+
+training:
+  n_trials: 20          # trials de Optuna
+  cv_folds: 5           # cross-validation para comparar algoritmos
+  cv_sample_size: 40000 # filas usadas en la CV (para que corra rápido en un laptop)
+
+serving:
+  model_dir: models/champion
+  prediction_log: logs/predictions.jsonl
+
+monitoring:
+  psi_warning: 0.1
+  psi_alert: 0.2
+  max_auc_drop: 0.03
+  min_rows_psi: 200     # con menos registros el PSI es ruido
+  reports_dir: reports/monitoring

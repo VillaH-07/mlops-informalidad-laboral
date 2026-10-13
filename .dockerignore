@@ -1,0 +1,29 @@
+# Todo lo que NO debe entrar al contexto de build de Docker
+.git/
+.github/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Datos, tracking y salidas (pesados o privados)
+data/
+mlflow.db
+mlruns/
+mlartifacts/
+logs/
+reports/
+notebooks/
+tests/
+docs/
+pipelines/
+scripts/
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
