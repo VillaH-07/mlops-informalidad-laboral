@@ -1,6 +1,6 @@
 # Predicción de Informalidad Laboral en Colombia · Proyecto MLOps end-to-end
 
-![CI](https://github.com/villah-07/mlops-informalidad-laboral/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/VillaH-07/mlops-informalidad-laboral/actions/workflows/ci.yml/badge.svg)](https://github.com/VillaH-07/mlops-informalidad-laboral/actions/workflows/ci.yml)
 
 Proyecto final del curso **MLOps – Universidad de Medellín**. Toma un modelo que predice si un
 trabajador colombiano es informal (no cotiza a pensión), a partir de la **GEIH del DANE**, y lo lleva
@@ -89,7 +89,7 @@ Diagrama completo y decisiones de diseño: [`docs/arquitectura.md`](docs/arquite
 
 ```bash
 # 1. Clonar e instalar el entorno exacto (uv.lock)
-git clone https://github.com/villah-07/mlops-informalidad-laboral.git
+git clone https://github.com/VillaH-07/mlops-informalidad-laboral.git
 cd mlops-informalidad-laboral
 uv sync
 
