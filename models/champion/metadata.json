@@ -1,0 +1,40 @@
+{
+  "model_name": "informalidad-laboral-clf",
+  "version": "1",
+  "alias": "champion",
+  "run_id": "117fac3f44374a9580922ae83c631d48",
+  "threshold": 0.494901,
+  "metrics": {
+    "test_roc_auc": 0.9717,
+    "test_pr_auc": 0.9773,
+    "test_f1": 0.9185,
+    "test_precision": 0.9338,
+    "test_recall": 0.9036,
+    "test_accuracy": 0.9109,
+    "test_brier": 0.065
+  },
+  "features": {
+    "numeric": [
+      "EDAD",
+      "HORAS_SEMANA",
+      "INGRESO_LABORAL"
+    ],
+    "categorical": [
+      "SEXO",
+      "NIVEL_EDUCATIVO",
+      "ESTADO_CIVIL",
+      "AFILIADO_SALUD",
+      "POSICION_OCUPACIONAL",
+      "TIENE_CONTRATO",
+      "RAMA_ACTIVIDAD"
+    ]
+  },
+  "data_version": "1198d4697cc0",
+  "test_periods": "Enero 2026, Febrero 2026",
+  "trained_at": "2026-10-12T23:11:45.917000+00:00",
+  "exported_at": "2026-10-12T23:11:49.583962+00:00",
+  "library_versions": {
+    "scikit-learn": "1.7.2",
+    "xgboost": "3.2.0"
+  }
+}
