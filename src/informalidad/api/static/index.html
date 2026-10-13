@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Informalidad Laboral · Predicción</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --text:#1d2433; --muted:#5b6475; --accent:#2a6fbb; --line:#dde1e8; --bad:#c2410c; --good:#15803d; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#12151b; --card:#1b2029; --text:#e6e9ef; --muted:#9aa3b2; --accent:#5b9be0; --line:#2c333f; --bad:#f08a5d; --good:#4ade80; } }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    p.sub { color: var(--muted); margin: 0 0 24px; }
+    form, .result { background: var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    label { display:flex; flex-direction:column; font-size:.85rem; color:var(--muted); gap:6px; }
+    input, select { font: inherit; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); }
+    button { margin-top:18px; padding:10px 18px; border:0; border-radius:8px; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; }
+    .result { margin-top:18px; display:none; }
+    .big { font-size: 2rem; font-weight: 700; }
+    .informal { color: var(--bad); } .formal { color: var(--good); }
+    footer { margin-top: 24px; color: var(--muted); font-size: .8rem; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>¿Este trabajador es informal?</h1>
+  <p class="sub">Modelo XGBoost entrenado con la GEIH (DANE). Informal = no cotiza a pensión.</p>
+  <form id="f">
+    <div class="grid">
+      <label>Edad <input name="EDAD" type="number" min="10" max="110" value="34" required></label>
+      <label>Horas a la semana <input name="HORAS_SEMANA" type="number" min="0" max="168" value="48" required></label>
+      <label>Ingreso laboral mensual ($) <input name="INGRESO_LABORAL" type="number" min="0" value="1300000" required></label>
+      <label>Sexo <select name="SEXO"><option value="1">Hombre</option><option value="2">Mujer</option></select></label>
+      <label>Posición ocupacional
+        <select name="POSICION_OCUPACIONAL">
+          <option value="1">Empleado particular</option><option value="2">Empleado del gobierno</option>
+          <option value="3">Empleado doméstico</option><option value="4" selected>Cuenta propia</option>
+          <option value="5">Patrón o empleador</option><option value="6">Trab. familiar sin remuneración</option>
+          <option value="7">Trab. sin remuneración (otros hogares)</option><option value="8">Jornalero o peón</option>
+        </select></label>
+      <label>¿Tiene contrato? <select name="TIENE_CONTRATO"><option value="1">Sí</option><option value="2" selected>No</option></select></label>
+      <label>Afiliado a salud <select name="AFILIADO_SALUD"><option value="1">Sí</option><option value="2">No</option><option value="9">No sabe</option></select></label>
+      <label>Estado civil
+        <select name="ESTADO_CIVIL">
+          <option value="1">Unión libre &lt; 2 años</option><option value="2" selected>Unión libre ≥ 2 años</option>
+          <option value="3">Casado(a)</option><option value="4">Separado(a)/divorciado(a)</option>
+          <option value="5">Viudo(a)</option><option value="6">Soltero(a)</option>
+        </select></label>
+      <label>Nivel educativo
+        <select name="NIVEL_EDUCATIVO">
+          <option value="1">Ninguno</option><option value="2">Preescolar</option>
+          <option value="3">Básica primaria</option><option value="4">Básica secundaria</option>
+          <option value="5" selected>Media académica (bachiller)</option><option value="6">Media técnica</option>
+          <option value="7">Normalista</option><option value="8">Técnica profesional</option>
+          <option value="9">Tecnológica</option><option value="10">Universitaria</option>
+          <option value="11">Especialización</option><option value="12">Maestría</option>
+          <option value="13">Doctorado</option>
+        </select></label>
+      <label>Rama de actividad (CIIU 2 dígitos) <input name="RAMA_ACTIVIDAD" type="number" min="0" max="99" value="47" required></label>
+    </div>
+    <button type="submit">Predecir</button>
+  </form>
+  <div class="result" id="r">
+    <div>Probabilidad de informalidad</div>
+    <div class="big" id="prob">–</div>
+    <div id="label"></div>
+  </div>
+  <footer>API: <a href="/docs">/docs</a> · <a href="/model/info">/model/info</a> · <a href="/health">/health</a></footer>
+</main>
+<script>
+  document.getElementById("f").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    for (const k in data) data[k] = Number(data[k]);
+    const res = await fetch("/predict", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    const out = await res.json();
+    const box = document.getElementById("r"); box.style.display = "block";
+    if (!res.ok) { document.getElementById("prob").textContent = "Error"; document.getElementById("label").textContent = JSON.stringify(out.detail); return; }
+    const prob = document.getElementById("prob");
+    prob.textContent = (out.probabilidad_informal * 100).toFixed(1) + "%";
+    prob.className = "big " + (out.prediccion ? "informal" : "formal");
+    document.getElementById("label").textContent = `Predicción: ${out.etiqueta} (umbral ${out.umbral}, modelo v${out.version_modelo})`;
+  });
+</script>
+</body>
+</html>

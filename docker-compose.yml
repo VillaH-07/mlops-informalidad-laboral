@@ -1,0 +1,19 @@
+# Levanta la API de predicción en un contenedor.
+#   docker compose up --build        (construye y levanta)
+#   docker compose down              (detiene)
+#
+# El volumen ./logs permite que el log de predicciones (logs/predictions.jsonl) quede en tu
+# máquina, para luego correr el flujo de monitoreo sobre él.
+
+services:
+  api:
+    build: .
+    image: informalidad-api:latest
+    container_name: informalidad-api
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_PREDICTIONS=true
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
